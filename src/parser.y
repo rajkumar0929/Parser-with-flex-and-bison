@@ -32,6 +32,13 @@ statement_list
 statement
     : variable_decl
     | assignment
+    | if_statement
+    | while_statement
+    | block
+    ;
+
+block
+    : LBRACE statement_list RBRACE
     ;
 
 variable_decl
@@ -41,6 +48,15 @@ variable_decl
 
 assignment
     : IDENTIFIER ASSIGN expression SEMICOLON
+    ;
+
+if_statement
+    : IF LPAREN expression RPAREN statement
+    | IF LPAREN expression RPAREN statement ELSE statement
+    ;
+
+while_statement
+    : WHILE LPAREN expression RPAREN statement
     ;
 
 /* ---------- Expressions ---------- */
