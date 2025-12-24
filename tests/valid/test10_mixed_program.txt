@@ -1,0 +1,12 @@
+var a = 5;
+var b = 10;
+var c;
+
+if (a < b) {
+    c = a + b;
+} else {
+    c = a - b;
+}
+
+while (c > 0)
+    c = c - 1;

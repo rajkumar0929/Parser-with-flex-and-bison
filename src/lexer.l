@@ -1,6 +1,9 @@
 %{
 #include "parser.tab.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 int line_no = 1;
 %}
@@ -34,9 +37,15 @@ int line_no = 1;
 "}"                       { return RBRACE; }
 ";"                       { return SEMICOLON; }
 
-[0-9]+                    { return INTEGER; }
-[a-zA-Z_][a-zA-Z0-9_]*    { return IDENTIFIER; }
+[0-9]+ {
+    yylval.ival = atoi(yytext);
+    return INTEGER;
+}
 
+[a-zA-Z_][a-zA-Z0-9_]* {
+    yylval.str = strdup(yytext);
+    return IDENTIFIER;
+}
 . {
     fprintf(stderr,
             "Lexer error at line %d: invalid character '%s'\n",

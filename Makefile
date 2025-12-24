@@ -1,11 +1,12 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -Isrc
 
 LEX = flex
 YACC = bison
 
 SRC = src
-OBJ = parser.tab.o lex.yy.o src/main.o src/ast.o
+OBJ = parser.tab.o lex.yy.o src/main.o src/ast.o src/symbol_table.o
+
 
 all: parser
 
@@ -23,6 +24,9 @@ src/main.o: src/main.c
 
 src/ast.o: src/ast.c src/ast.h
 	$(CC) $(CFLAGS) -c src/ast.c -o src/ast.o
+
+src/symbol_table.o: src/symbol_table.c src/symbol_table.h
+	$(CC) $(CFLAGS) -c src/symbol_table.c -o src/symbol_table.o
 
 clean:
 	rm -f parser *.o src/*.o lex.yy.c parser.tab.c parser.tab.h
