@@ -5,7 +5,12 @@
 int yylex(void);
 int yyerror(const char *s);
 
+extern int line_no;
+extern char *yytext;
+
 ASTNode *root;
+
+int suppress_yyerror = 0;
 %}
 
 %code requires {
@@ -43,7 +48,34 @@ program
         root = ast_new_node(AST_PROGRAM);
         root->left = $1;
       }
+    | error {
+        /* Missing semicolon before a new statement */
+        if (yytext && (*yytext == '_' ||
+            (*yytext >= 'a' && *yytext <= 'z') ||
+            (*yytext >= 'A' && *yytext <= 'Z'))) {
+
+            fprintf(stderr,
+                "Syntax error at line %d: missing ';'\n",
+                line_no - 1);
+        }
+        /* EOF case */
+        else if (yytext == NULL || *yytext == '\0') {
+            fprintf(stderr,
+                "Syntax error at line %d: missing ';'\n",
+                line_no > 1 ? line_no - 1 : line_no);
+        }
+        /* Genuine unexpected token */
+        else {
+            fprintf(stderr,
+                "Syntax error at line %d: unexpected token '%s'\n",
+                line_no, yytext);
+        }
+        YYABORT;
+      }
     ;
+
+
+
 
 statement_list
     : statement_list statement {
@@ -75,7 +107,14 @@ block
         n->left = $2;
         $$ = n;
       }
+    | LBRACE statement_list error {
+        fprintf(stderr,
+            "Syntax error at line %d: missing '}'\n",
+            line_no);
+        YYABORT;
+      }
     ;
+
 
 variable_decl
     : VAR IDENTIFIER SEMICOLON {
@@ -160,6 +199,8 @@ factor
 %%
 
 int yyerror(const char *s) {
-    fprintf(stderr, "Parse error: %s\n", s);
     return 0;
 }
+
+
+
